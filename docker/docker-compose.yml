@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  victim:
+    build: ./victim
+    container_name: threat-lab-victim
+    networks:
+      threat-lab:
+        ipv4_address: 172.20.0.10
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ../threat_system/logs:/logs
+    command: >
+      /bin/bash -c "
+        service nginx start &&
+        service ssh start &&
+        python3 /capture/capture.py"
+
+  attacker:
+    build: ./attacker
+    container_name: threat-lab-attacker
+    networks:
+      threat-lab:
+        ipv4_address: 172.20.0.20
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ../threat_system/logs:/logs
+    command: ["tail", "-f", "/dev/null"]
+
+networks:
+  threat-lab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AA-IDS — Live Decision Visualizer</title>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <div id="header">
+    <h1>AA-IDS · Live Decision Visualizer</h1>
+    <div id="status-dot"></div>
+    <span id="status-label">Connecting…</span>
+  </div>
+
+  <!-- ── Controls ────────────────────────────────────────────────── -->
+  <div id="controls">
+    <select id="scenario-select">
+      <option value="attack">Attack</option>
+      <option value="spike">Spike</option>
+      <option value="benign">Benign</option>
+    </select>
+    <button id="btn-run">▶ Run scenario</button>
+
+    <input id="ip-input" type="text" placeholder="IP address…" spellcheck="false">
+    <button id="btn-ip">🔍 Investigate IP</button>
+
+    <button id="btn-eval">📊 Run evaluation</button>
+  </div>
+
+  <!-- ── Main ─────────────────────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- Sidebar: run history -->
+    <div id="sidebar">
+      <div id="sidebar-title">Recent runs</div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- Tree canvas -->
+    <div id="tree-wrap"></div>
+
+  </div>
+
+  <!-- components.js must load before logic.js (defines mkNode, AGENT_CONFIG, etc.) -->
+  <script src="components.js" defer></script>
+  <script src="logic.js"      defer></script>
+</body>
+</html>

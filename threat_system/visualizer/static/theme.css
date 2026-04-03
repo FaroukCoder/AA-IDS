@@ -1,0 +1,49 @@
+/* theme.css — ALL colors, fonts, and animation speeds live here.
+   To fully reskin: edit this file only. Nothing else needs to change. */
+
+:root {
+  /* ── Background palette ─────────────────────────────────────── */
+  --bg:       #080c18;
+  --surface:  #0f1629;
+  --surface2: #161f36;
+  --border:   #1e2d4a;
+
+  /* ── Text ───────────────────────────────────────────────────── */
+  --text:       #cdd6f4;
+  --text-dim:   #45475a;
+  --text-muted: #6c7086;
+  --font:       'Courier New', 'Consolas', monospace;
+  --font-size:  13px;
+
+  /* ── Agent accent colors ────────────────────────────────────── */
+  --c-sentinel:     #89dceb;
+  --c-whois:        #f9e2af;
+  --c-dns:          #89b4fa;
+  --c-port-intel:   #f38ba8;
+  --c-reputation:   #cba6f7;
+  --c-orchestrator: #cdd6f4;
+  --c-policy:       #a6e3a1;
+  --c-action:       #a6e3a1;
+
+  /* ── Verdict / status colors ────────────────────────────────── */
+  --v-clean:      #a6e3a1;
+  --v-suspicious: #f9e2af;
+  --v-malicious:  #f38ba8;
+  --v-escalated:  #fab387;
+  --v-pending:    #89dceb;
+  --v-unknown:    #45475a;
+
+  /* ── Glow shadows (matched to verdict colors) ───────────────── */
+  --glow-clean:      0 0 18px rgba(166, 227, 161, 0.35);
+  --glow-suspicious: 0 0 18px rgba(249, 226, 175, 0.35);
+  --glow-malicious:  0 0 18px rgba(243, 139, 168, 0.40);
+  --glow-escalated:  0 0 18px rgba(250, 179, 135, 0.35);
+
+  /* ── Animation durations ────────────────────────────────────── */
+  --anim-node:   0.5s;
+  --anim-bubble: 0.5s;
+  --anim-bar:    1s;
+
+  /* ── Shape ──────────────────────────────────────────────────── */
+  --radius: 10px;
+}

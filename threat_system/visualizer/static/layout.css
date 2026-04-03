@@ -1,0 +1,307 @@
+/* layout.css — ONLY structural layout. No color values.
+   To change the page structure (horizontal tree, right sidebar…): edit here only. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--font-size);
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+#header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  z-index: 10;
+}
+
+#header h1 {
+  flex: 1;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+#status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--v-unknown);
+  flex-shrink: 0;
+}
+
+#status-dot.connected    { background: var(--v-clean); }
+#status-dot.reconnecting { background: var(--v-suspicious); }
+
+#status-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 90px;
+}
+
+/* ── Controls bar ───────────────────────────────────────────────── */
+#controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  flex-wrap: wrap;
+}
+
+#controls button {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+#controls button:hover:not(:disabled) { border-color: var(--text-muted); background: var(--surface2); }
+#controls button:disabled             { opacity: 0.4; cursor: not-allowed; }
+
+#ip-input {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  width: 140px;
+}
+
+#ip-input::placeholder { color: var(--text-dim); }
+
+/* Scenario select */
+#scenario-select {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── Main area: sidebar + tree ──────────────────────────────────── */
+#main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+#sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+#sidebar-title {
+  padding: 10px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+#history-list::-webkit-scrollbar       { width: 4px; }
+#history-list::-webkit-scrollbar-track { background: transparent; }
+#history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.hist-item {
+  padding: 8px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.hist-item:hover   { background: var(--surface2); }
+.hist-item.active  { border-left-color: var(--v-pending); background: rgba(137, 220, 235, 0.08); }
+
+.hist-item .hi-id  { font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hist-item .hi-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.hist-item .hi-verdict {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Tree canvas ────────────────────────────────────────────────── */
+#tree-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 32px;
+}
+
+#tree-wrap::-webkit-scrollbar       { width: 6px; }
+#tree-wrap::-webkit-scrollbar-track { background: transparent; }
+#tree-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Waiting / empty state */
+#idle-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 13px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+/* ── Tree node ──────────────────────────────────────────────────── */
+.node-wrap {
+  opacity: 0;
+  transform: translateX(-16px);
+  transition: opacity var(--anim-node) ease, transform var(--anim-node) ease;
+}
+
+.node-wrap.visible  { opacity: 1; transform: translateX(0); }
+.node-wrap.instant  { transition: none !important; opacity: 1 !important; transform: none !important; }
+
+.node-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 4px;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.node-icon   { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.node-header { flex: 1; }
+.node-label  { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+.node-sub    { font-size: 11px; color: var(--text-muted); margin-top: 3px; min-height: 14px; }
+
+/* Verdict badge */
+.verdict-badge {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 5px;
+  display: inline-block;
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+
+/* Confidence bar */
+.conf-track {
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 2px;
+  margin-top: 7px;
+  overflow: hidden;
+}
+
+.conf-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width var(--anim-bar) ease;
+}
+
+/* ── Thought bubble ──────────────────────────────────────────────── */
+.bubble-wrap {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height var(--anim-bubble) ease;
+}
+
+.bubble-wrap.open { max-height: 300px; }
+.bubble-wrap.instant { transition: none !important; max-height: 160px !important; }
+
+.bubble {
+  margin: 0 0 12px 34px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  position: relative;
+}
+
+.bubble::before {
+  content: '"';
+  font-size: 22px;
+  line-height: 1;
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  opacity: 0.3;
+}
+
+.bubble-text { padding-left: 16px; }
+
+/* ── Connector line ──────────────────────────────────────────────── */
+.connector {
+  width: 2px;
+  height: 28px;
+  background: var(--border);
+  margin: 0 0 0 22px;
+  border-radius: 1px;
+}
+
+/* ── Parallel agent row ──────────────────────────────────────────── */
+.parallel-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.parallel-row .node-wrap  { flex: 1; }
+.parallel-row .node-card  { flex-direction: column; }
+
+/* ── Skeleton / placeholder ──────────────────────────────────────── */
+.node-skeleton {
+  height: 60px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  opacity: 0.5;
+  margin-bottom: 4px;
+}

@@ -1,0 +1,13 @@
+anthropic>=0.30.0
+python-dotenv>=1.0.0
+rich>=13.0.0
+pytest>=8.0.0
+ipwhois>=1.3.0
+requests>=2.31.0
+websockets>=12.0
+# Live capture and SSH brute-force (used inside Docker containers)
+# scapy requires admin/root privileges to capture packets
+# On Windows: run terminal as Administrator
+# On Linux/Mac: run with sudo or use setcap
+scapy>=2.5.0
+paramiko>=3.0.0

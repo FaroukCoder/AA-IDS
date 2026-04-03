@@ -1,0 +1,26 @@
+threat_system/config/.env
+threat_system/logs/api_cache.json
+threat_system/logs/llm_cache.json
+threat_system/logs/blocked_ips.txt
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.env
+
+# Runtime-generated logs — never commit
+threat_system/logs/
+
+# IDE / tool config — personal, not project
+.claude/
+.agents/
+.kiro/
+skills-lock.json
+pytest_out.txt
+Visuals/
+spec_v5.1.md

@@ -1,0 +1,25 @@
+{
+  "total_events": 4,
+  "llm_pipeline": {
+    "precision": 1.0,
+    "recall": 0.5,
+    "false_positive_rate": 0.0,
+    "avg_latency_s": 40.507,
+    "policy_overrides": 0,
+    "tp": 2,
+    "fp": 0,
+    "tn": 0,
+    "fn": 2
+  },
+  "rule_baseline": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "avg_latency_s": 0.0,
+    "policy_overrides": 0,
+    "tp": 4,
+    "fp": 0,
+    "tn": 0,
+    "fn": 0
+  }
+}
