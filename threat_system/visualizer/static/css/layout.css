@@ -1,0 +1,194 @@
+/* ── Detective UI — Full-screen layer stack ─────────────────────────────── */
+
+/* ── Layer z-index reference ──────────────────────────────────────────────
+   1   #static-bg          PNG fallback, always behind everything
+   2   #loop-video-a/b     scene loop videos (crossfade pair)
+   3   #transition-video   plays only during transitions
+   4   #brain-glow         radial amber glow overlay
+   4   #smoke-overlay      noise/vignette
+  10   #tendrils-canvas    canvas for future neural tendrils
+  20   .agent-icon         floating agent portraits
+  30   #cabinet-panel      slides in from right (D2)
+  35   #run-detail-overlay full-screen overlay (D3)
+  40   #monologue-panel    speech bubble (investigation)
+  50   .hover-zone         left/right edge capture areas
+  ───────────────────────────────────────────────────────────────────────── */
+
+/* Shared full-screen positioning */
+.fill {
+  position: fixed;
+  inset: 0;
+}
+
+/* ── Background video layers ─────────────────────────────────────────────── */
+#static-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+.bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity var(--fade-slow);
+}
+
+#loop-video-a {
+  z-index: 2;
+  opacity: 1;
+}
+
+#loop-video-b {
+  z-index: 2;
+  opacity: 0;
+}
+
+#transition-video {
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fade-fast);
+}
+
+/* ── Ambient overlays ─────────────────────────────────────────────────────── */
+#brain-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 45% at 50% 30%,
+    var(--glow-core) 0%,
+    var(--glow-amber) 30%,
+    transparent 70%
+  );
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1.0; transform: scale(1.04); }
+}
+
+#smoke-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 100%, rgba(0,0,0,0.65) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 30% at 50% 0%,   rgba(0,0,0,0.4)  0%, transparent 60%);
+  animation: smoke-drift 8s ease-in-out infinite alternate;
+}
+
+@keyframes smoke-drift {
+  0%   { opacity: 0.7; }
+  100% { opacity: 1.0; }
+}
+
+/* ── Canvas layer ─────────────────────────────────────────────────────────── */
+#tendrils-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Cabinet panel (LEFT — D2 + D3) ──────────────────────────────────────── */
+#cabinet-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 360px;
+  z-index: 30;
+  background: rgba(8, 7, 4, 0.92);
+  border-right: 1px solid var(--ochre-dim);
+  transform: translateX(-100%);
+  transition: transform var(--panel-transition);
+  overflow: hidden;          /* inner views handle their own scroll */
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+}
+
+#cabinet-panel.visible {
+  transform: translateX(0);
+}
+
+/* ── Panel toggle tab ─────────────────────────────────────────────────────── */
+/* Sits at left edge (panel closed) or panel's right edge (panel open).
+   Transitions in sync with the panel slide. */
+#panel-tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 31;
+  background: rgba(8, 7, 4, 0.92);
+  border: 1px solid var(--ochre-dim);
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  width: 28px;
+  height: 56px;
+  display: none;          /* shown by state.js in D2/D3 */
+  align-items: center;
+  justify-content: center;
+  color: var(--ochre);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  transition: left var(--panel-transition), color 0.2s;
+}
+
+#panel-tab:hover { color: var(--bone); }
+
+/* Arrow points right (open) when panel is closed */
+#panel-tab::after  { content: '›'; }
+
+/* When panel is open: tab rides right edge of panel, arrow points left (close) */
+#panel-tab.panel-open {
+  left: 360px;
+}
+#panel-tab.panel-open::after { content: '‹'; }
+
+/* ── Run detail overlay (D3) — not used this phase, kept for compat ─────── */
+#run-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: transparent;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* ── Monologue panel (investigation — stub) ──────────────────────────────── */
+#monologue-panel {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: none;
+  max-width: 600px;
+  width: 90%;
+}
+
+/* ── Agent icons (stub) ──────────────────────────────────────────────────── */
+.agent-icon {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--fade-slow);
+}

@@ -1,52 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AA-IDS — Live Decision Visualizer</title>
-  <link rel="stylesheet" href="theme.css">
-  <link rel="stylesheet" href="layout.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AA-IDS — Detective</title>
+
+  <!-- Detective palette + typography -->
+  <link rel="stylesheet" href="css/theme.css" />
+  <!-- Full-screen video layer stack -->
+  <link rel="stylesheet" href="css/layout.css" />
+  <!-- Hover zones + SVG loading rings -->
+  <link rel="stylesheet" href="css/hover-zones.css" />
+  <!-- Stubs — wired up next phase -->
+  <link rel="stylesheet" href="css/cabinet.css" />
+  <link rel="stylesheet" href="css/monologue.css" />
+  <link rel="stylesheet" href="css/run-detail.css" />
 </head>
 <body>
 
-  <!-- ── Header ──────────────────────────────────────────────────── -->
-  <div id="header">
-    <h1>AA-IDS · Live Decision Visualizer</h1>
-    <div id="status-dot"></div>
-    <span id="status-label">Connecting…</span>
+  <!-- ── Layer 1: Static PNG fallback ──────────────────────────────────── -->
+  <img id="static-bg" src="assets/detective_1.png" alt="" />
+
+  <!-- ── Layer 2: Scene loop videos (crossfade pair) ───────────────────── -->
+  <video id="loop-video-a" class="bg-video" muted playsinline autoplay loop></video>
+  <video id="loop-video-b" class="bg-video" muted playsinline         loop></video>
+
+  <!-- ── Layer 3: Transition video ──────────────────────────────────────── -->
+  <video id="transition-video" class="bg-video" muted playsinline></video>
+
+  <!-- ── Layer 4: Ambient overlays ──────────────────────────────────────── -->
+  <div id="brain-glow"></div>
+  <div id="smoke-overlay"></div>
+
+  <!-- ── Layer 10: Neural tendrils canvas ───────────────────────────────── -->
+  <canvas id="tendrils-canvas"></canvas>
+
+  <!-- ── Layer 20: Agent portraits (populated by agents.js) ────────────── -->
+  <!-- Agent icons injected here at runtime -->
+
+  <!-- ── Layer 30: Cabinet panel (LEFT — D2 case list / D3 case detail) ─── -->
+  <!-- Structure injected by cabinet.js on first reload() call -->
+  <aside id="cabinet-panel"></aside>
+
+  <!-- run-detail-overlay kept for layout compat; unused this phase -->
+  <div id="run-detail-overlay"></div>
+
+  <!-- ── Panel toggle tab (D2/D3 — floats at panel edge) ───────────────── -->
+  <button id="panel-tab" title="Toggle case files"></button>
+
+  <!-- ── Layer 40: Monologue panel (investigation) ──────────────────────── -->
+  <div id="monologue-panel">
+    <!-- Speech bubble populated by monologue.js -->
   </div>
 
-  <!-- ── Controls ────────────────────────────────────────────────── -->
-  <div id="controls">
-    <select id="scenario-select">
-      <option value="attack">Attack</option>
-      <option value="spike">Spike</option>
-      <option value="benign">Benign</option>
-    </select>
-    <button id="btn-run">▶ Run scenario</button>
+  <!-- ── Layer 50: Hover zones ──────────────────────────────────────────── -->
 
-    <input id="ip-input" type="text" placeholder="IP address…" spellcheck="false">
-    <button id="btn-ip">🔍 Investigate IP</button>
-
-    <button id="btn-eval">📊 Run evaluation</button>
-  </div>
-
-  <!-- ── Main ─────────────────────────────────────────────────────── -->
-  <div id="main">
-
-    <!-- Sidebar: run history -->
-    <div id="sidebar">
-      <div id="sidebar-title">Recent runs</div>
-      <div id="history-list"></div>
+  <!-- Left zone: navigate BACK -->
+  <div id="hover-left" class="hover-zone hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="40" cy="40" r="34" />
+        <circle class="ring-fill"  cx="40" cy="40" r="34" />
+      </svg>
+      <div class="ring-arrow">&#8592;</div>
     </div>
-
-    <!-- Tree canvas -->
-    <div id="tree-wrap"></div>
-
   </div>
 
-  <!-- components.js must load before logic.js (defines mkNode, AGENT_CONFIG, etc.) -->
-  <script src="components.js" defer></script>
-  <script src="logic.js"      defer></script>
+  <!-- Right zone: navigate FORWARD -->
+  <div id="hover-right" class="hover-zone hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="40" cy="40" r="34" />
+        <circle class="ring-fill"  cx="40" cy="40" r="34" />
+      </svg>
+      <div class="ring-arrow">&#8594;</div>
+    </div>
+  </div>
+
+  <!-- ── Scripts (order matters: dependencies first) ────────────────────── -->
+  <script src="js/video-manager.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/hover.js"></script>
+  <script src="js/tendrils.js"></script>
+  <script src="js/agents.js"></script>
+  <script src="js/monologue.js"></script>
+  <script src="js/cabinet.js"></script>
+  <script src="js/websocket.js"></script>
+
+  <!-- ── Bootstrap ─────────────────────────────────────────────────────── -->
+  <script>
+    VideoManager.preload();
+    State.set('d1');
+    Hover.init();
+    Tendrils.init();
+    WS.connect();
+  </script>
+
 </body>
 </html>
