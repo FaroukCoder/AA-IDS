@@ -1,7 +1,11 @@
 from __future__ import annotations
+import ipaddress
 import json
+import logging
 import os
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 from .models import InvestigatorResult, PolicyResult, ActionRecord
 from .policy_agent import ConfigError
@@ -69,9 +73,18 @@ class ActionAdvisor:
 
         # Active mode: append IP to blocked list
         if self._active and final == "block_ip":
-            os.makedirs(os.path.dirname(BLOCKED_IPS_LOG), exist_ok=True)
-            with open(BLOCKED_IPS_LOG, "a", encoding="utf-8") as f:
-                f.write(f"{event.src_ip}\n")
+            # B8: validate src_ip before writing — prevents injection if the
+            # blocked_ips.txt file is later consumed by a firewall script.
+            try:
+                ipaddress.ip_address(event.src_ip)
+            except ValueError:
+                logger.warning(
+                    "executor: invalid src_ip %r — skipping block write", event.src_ip
+                )
+            else:
+                os.makedirs(os.path.dirname(BLOCKED_IPS_LOG), exist_ok=True)
+                with open(BLOCKED_IPS_LOG, "a", encoding="utf-8") as f:
+                    f.write(f"{event.src_ip}\n")
 
         return record
 

@@ -5,7 +5,10 @@ Security event: {event}
 Agent findings (in execution order): {agent_reports}
 Agents that failed (fallback data only): {fallback_agents}
 
-Produce a final verdict. If fallback_agents is non-empty, note reduced confidence due to missing data.
+Produce a final verdict. If fallback_agents is non-empty, weigh the impact proportionally:
+- reputation fallback has HIGH impact (primary evidence for blocking decisions)
+- whois and dns fallbacks have LOW-to-MEDIUM impact; their absence alone should not push confidence below 0.6 when reputation and port_intel data are strong
+- port_intel fallback has MEDIUM impact for port scan events
 Classify the event, assess the technique, and recommend an action.
 
 Respond with valid JSON only. No prose. No markdown fences.

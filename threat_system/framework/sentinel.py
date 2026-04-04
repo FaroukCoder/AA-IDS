@@ -39,10 +39,23 @@ def _sanitize_ip(raw: str) -> str | None:
         return None
 
 
+def _safe_int(val, default=0) -> int:
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return default
+
+
 class Sentinel:
     def process(self, log_path: str) -> list[Event]:
+        lines = []
         with open(log_path, encoding="utf-8") as f:
-            lines = [json.loads(line) for line in f if line.strip()]
+            for line in f:
+                if line.strip():
+                    try:
+                        lines.append(json.loads(line))
+                    except json.JSONDecodeError as e:
+                        logger.warning("Invalid JSON skipped: %s", e)
 
         events: list[Event] = []
         event_counter = 0
@@ -96,15 +109,17 @@ class Sentinel:
 
         for i, rec in enumerate(records):
             t_start = self._ts(rec)
+            if t_start is None:
+                continue
             ports_in_window: set[int] = set()
-            ports_in_window.add(int(rec.get("dst_port", 0)))
+            ports_in_window.add(_safe_int(rec.get("dst_port", 0)))
             last_t = t_start
 
             for j in range(i + 1, len(records)):
                 t = self._ts(records[j])
-                if t - t_start > window_s:
+                if t is None or t - t_start > window_s:
                     break
-                ports_in_window.add(int(records[j].get("dst_port", 0)))
+                ports_in_window.add(_safe_int(records[j].get("dst_port", 0)))
                 last_t = t
 
             if len(ports_in_window) > threshold:
@@ -132,11 +147,13 @@ class Sentinel:
 
         for i, rec in enumerate(records):
             t_start = self._ts(rec)
+            if t_start is None:
+                continue
             count = 1
 
             for j in range(i + 1, len(records)):
                 t = self._ts(records[j])
-                if t - t_start > window_s:
+                if t is None or t - t_start > window_s:
                     break
                 count += 1
 
@@ -165,15 +182,17 @@ class Sentinel:
 
         for i, rec in enumerate(failed):
             t_start = self._ts(rec)
+            if t_start is None:
+                continue
             count = 1
-            ports_seen: set[int] = {int(rec.get("dst_port", 0))}
+            ports_seen: set[int] = {_safe_int(rec.get("dst_port", 0))}
 
             for j in range(i + 1, len(failed)):
                 t = self._ts(failed[j])
-                if t - t_start > window_s:
+                if t is None or t - t_start > window_s:
                     break
                 count += 1
-                ports_seen.add(int(failed[j].get("dst_port", 0)))
+                ports_seen.add(_safe_int(failed[j].get("dst_port", 0)))
 
             if count > threshold:
                 return Event(
@@ -241,6 +260,12 @@ class Sentinel:
                         continue
                     record["src_ip"] = ip
 
+                    # B4: skip records with missing/unparseable timestamps —
+                    # they would default to epoch and never evict from the buffer.
+                    if self._ts(record) is None:
+                        logger.debug("watch(): skipping record with invalid timestamp")
+                        continue
+
                     now = time.time()
                     ip_records[ip].append(record)
 
@@ -248,7 +273,7 @@ class Sentinel:
                     # For live traffic, packet timestamps ≈ wall clock.
                     cutoff = now - MAX_WINDOW
                     buf = ip_records[ip]
-                    while buf and self._ts(buf[0]) < cutoff:
+                    while buf and (self._ts(buf[0]) or 0.0) < cutoff:
                         buf.popleft()
 
                     records_list = list(buf)
@@ -264,16 +289,25 @@ class Sentinel:
                         event = rule_fn(ip, records_list, _next_id)
                         if event:
                             cooldown[key] = now + COOLDOWN_S
-                            callback(event)
+                            # B2: catch callback exceptions so the watch loop
+                            # survives a pipeline crash and keeps processing events.
+                            try:
+                                callback(event)
+                            except Exception as exc:
+                                logger.error(
+                                    "watch(): event callback raised %s — loop continues",
+                                    exc,
+                                )
 
             except KeyboardInterrupt:
                 pass
 
     @staticmethod
-    def _ts(record: dict) -> float:
+    def _ts(record: dict) -> float | None:
+        """Return Unix timestamp from record, or None if timestamp is missing/invalid."""
         ts_str = record.get("timestamp", "")
         try:
             dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
             return dt.timestamp()
         except (ValueError, AttributeError):
-            return 0.0
+            return None

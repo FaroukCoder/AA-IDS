@@ -1,7 +1,11 @@
 from __future__ import annotations
 import json
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# B7: strip control characters and newlines from values inserted into prompts.
+_CTRL_RE = re.compile(r"[\x00-\x1f\x7f\n\r]")
 
 from ..framework.base_agent import BaseAgent
 from ..framework.models import Event, AgentReport, InvestigatorResult
@@ -19,9 +23,12 @@ def _load_prompt(name: str) -> str:
 
 
 def _event_for_prompt(event: Event) -> dict:
-    """Strip volatile fields (event_id) so the LLM cache hits for same-IP same-type events."""
+    """Strip volatile fields and sanitize src_ip for safe prompt insertion."""
     d = event.__dict__.copy()
     d.pop("event_id", None)
+    # B7: remove control chars/newlines from src_ip so they can't inject new
+    # prompt lines into the LLM context.
+    d["src_ip"] = _CTRL_RE.sub("", str(d.get("src_ip", "")))
     return d
 
 
@@ -59,7 +66,18 @@ class OrchestratorAgent(BaseAgent):
             "You are a security investigation coordinator. "
             "Respond with valid JSON only. No prose. No markdown fences."
         )
-        dispatch = llm_client.call(system=dispatch_system, user=dispatch_prompt)
+        try:
+            dispatch = llm_client.call(system=dispatch_system, user=dispatch_prompt)
+        except Exception as e:
+            return InvestigatorResult(
+                classification="unknown",
+                confidence=0.0,
+                technique="",
+                agents_invoked=[],
+                reasoning=f"LLM Dispatch Failed: {e}",
+                recommended_action="escalate_human",
+                auto_escalated=True,
+            )
 
         # Validate — reject any unregistered agent names.
         raw_parallel = dispatch.get("parallel_agents", [])
@@ -120,7 +138,18 @@ class OrchestratorAgent(BaseAgent):
             "You are a senior security analyst. "
             "Respond with valid JSON only. No prose. No markdown fences."
         )
-        verdict = llm_client.call(system=synthesis_system, user=synthesis_prompt)
+        try:
+            verdict = llm_client.call(system=synthesis_system, user=synthesis_prompt)
+        except Exception as e:
+            return InvestigatorResult(
+                classification="unknown",
+                confidence=0.0,
+                technique="",
+                agents_invoked=parallel_agents + sequential_agents,
+                reasoning=f"LLM Synthesis Failed: {e}",
+                recommended_action="escalate_human",
+                auto_escalated=True,
+            )
 
         result = InvestigatorResult(
             classification=verdict.get("classification", "unknown"),

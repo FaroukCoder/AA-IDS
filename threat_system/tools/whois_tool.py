@@ -37,7 +37,8 @@ class WHOISTool:
         _validate_ip(ip)
         try:
             from ipwhois import IPWhois
-            obj = IPWhois(ip)
+            # B6: pass timeout so RDAP requests don't hang indefinitely.
+            obj = IPWhois(ip, timeout=8)
             raw = obj.lookup_rdap(depth=1)
             return _trim_rdap(raw)
         except Exception as e:

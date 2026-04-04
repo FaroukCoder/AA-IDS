@@ -66,9 +66,21 @@ class ReputationAgent(BaseAgent):
             "You are a threat intelligence analyst. "
             "Respond with valid JSON only. No prose. No markdown fences."
         )
-        result = llm_client.call(system=system, user=prompt)
+        try:
+            result = llm_client.call(system=system, user=prompt)
+        except Exception as e:
+            return AgentReport(
+                agent_name=self.name,
+                findings={},
+                confidence=0.0,
+                error=str(e),
+                fallback=True,
+            )
+
+        _raw_conf = result.get("confidence", 0.0)
+        confidence = float(_raw_conf) if isinstance(_raw_conf, (int, float)) else 0.0
         return AgentReport(
             agent_name=self.name,
             findings=result,
-            confidence=float(result.get("confidence", 0.0)),
+            confidence=confidence,
         )

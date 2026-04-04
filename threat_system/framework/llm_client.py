@@ -48,8 +48,17 @@ def _cache_key(system: str, user: str) -> str:
 
 def _parse_json(text: str) -> dict[str, Any]:
     text = text.strip()
+
+    def _check_dict(obj: Any, source: str) -> dict[str, Any]:
+        if not isinstance(obj, dict):
+            raise LLMOutputError(
+                f"LLM output must be a JSON object, got {type(obj).__name__} "
+                f"(source={source}): {text[:100]}"
+            )
+        return obj
+
     try:
-        return json.loads(text)
+        return _check_dict(json.loads(text), "direct")
     except json.JSONDecodeError:
         pass
     # strip markdown fences
@@ -59,7 +68,7 @@ def _parse_json(text: str) -> dict[str, Any]:
             line for line in lines if not line.startswith("```")
         )
         try:
-            return json.loads(inner.strip())
+            return _check_dict(json.loads(inner.strip()), "fenced")
         except json.JSONDecodeError:
             pass
     raise LLMOutputError(f"Failed to parse LLM output as JSON: {text[:200]}")

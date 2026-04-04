@@ -166,3 +166,99 @@ def test_port_intel_agent_success():
     assert report.agent_name == "port_intel"
     assert report.fallback is False
     assert "SSH" in report.findings["services_targeted"]
+
+
+# ---------- LLM Resilience / Timeout / Parse Error Tests ----------
+
+def test_agent_handles_llm_output_error_gracefully():
+    from ..agents.whois_agent import WHOISAgent
+    from ..tools.whois_tool import MockWHOISTool
+    from ..framework.llm_client import LLMOutputError
+    
+    agent = WHOISAgent(tool=MockWHOISTool())
+    # Mock LLM strictly failing with unparseable JSON
+    with patch("threat_system.framework.llm_client.call", side_effect=LLMOutputError("Bad JSON")):
+        report = agent.run(DEMO_EVENT)
+    
+    # Should fallback cleanly without crashing
+    assert report.fallback is True
+    assert report.confidence == 0.0
+    assert "Bad JSON" in report.error
+
+def test_agent_handles_llm_timeout_gracefully():
+    from ..agents.dns_agent import DNSAgent
+    from ..tools.dns_tool import MockDNSTool
+    import anthropic
+
+    agent = DNSAgent(tool=MockDNSTool())
+    with patch("threat_system.framework.llm_client.call", side_effect=anthropic.APIConnectionError(request=None)):
+        report = agent.run(DEMO_EVENT)
+
+    assert report.fallback is True
+    assert report.confidence == 0.0
+
+
+# ── B3: confidence type safety across all four agents ─────────────────────
+
+def test_reputation_agent_confidence_string_no_crash():
+    """ReputationAgent returns confidence=0.0 when LLM sends a string instead of float."""
+    from ..agents.reputation_agent import ReputationAgent
+    from ..tools.abuseipdb_tool import MockAbuseIPDBTool
+
+    agent = ReputationAgent(tool=MockAbuseIPDBTool())
+    mock_resp = {"risk_level": "high", "abuse_score": 90, "confidence": "very high"}
+    with patch("threat_system.framework.llm_client.call", return_value=mock_resp):
+        report = agent.run(DEMO_EVENT)
+    assert report.confidence == 0.0
+    assert not report.fallback
+
+
+def test_port_intel_agent_confidence_string_no_crash():
+    """PortIntelAgent returns confidence=0.0 when LLM sends a string instead of float."""
+    from ..agents.port_intel_agent import PortIntelAgent
+    from ..tools.port_db_tool import PortDBTool
+
+    agent = PortIntelAgent(tool=PortDBTool())
+    mock_resp = {"risk_level": "medium", "services_targeted": ["http"], "confidence": "medium"}
+    with patch("threat_system.framework.llm_client.call", return_value=mock_resp):
+        report = agent.run(DEMO_EVENT)
+    assert report.confidence == 0.0
+    assert not report.fallback
+
+
+def test_whois_agent_confidence_none_no_crash():
+    """WHOISAgent handles confidence=None (JSON null) without crashing."""
+    from ..agents.whois_agent import WHOISAgent
+    from ..tools.whois_tool import MockWHOISTool
+
+    agent = WHOISAgent(tool=MockWHOISTool())
+    mock_resp = {"risk_level": "low", "org": "Google", "confidence": None}
+    with patch("threat_system.framework.llm_client.call", return_value=mock_resp):
+        report = agent.run(DEMO_EVENT)
+    assert report.confidence == 0.0
+    assert not report.fallback
+
+
+def test_all_agents_missing_confidence_field_defaults_zero():
+    """All four agents default to confidence=0.0 when field is absent from LLM response."""
+    from ..agents.whois_agent import WHOISAgent
+    from ..agents.dns_agent import DNSAgent
+    from ..agents.reputation_agent import ReputationAgent
+    from ..agents.port_intel_agent import PortIntelAgent
+    from ..tools.whois_tool import MockWHOISTool
+    from ..tools.dns_tool import MockDNSTool
+    from ..tools.abuseipdb_tool import MockAbuseIPDBTool
+    from ..tools.port_db_tool import PortDBTool
+
+    agents_tools = [
+        (WHOISAgent(tool=MockWHOISTool()), {"risk_level": "low", "org": "ACME"}),
+        (DNSAgent(tool=MockDNSTool()), {"risk_level": "low", "hostname": "example.com"}),
+        (ReputationAgent(tool=MockAbuseIPDBTool()), {"risk_level": "low", "abuse_score": 0}),
+        (PortIntelAgent(tool=PortDBTool()), {"risk_level": "low", "services_targeted": []}),
+    ]
+    for agent, mock_resp in agents_tools:
+        with patch("threat_system.framework.llm_client.call", return_value=mock_resp):
+            report = agent.run(DEMO_EVENT)
+        assert report.confidence == 0.0, f"{agent.name} should default to 0.0"
+        assert not report.fallback, f"{agent.name} should not be fallback"
+

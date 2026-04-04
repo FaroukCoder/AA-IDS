@@ -1,0 +1,416 @@
+{
+  "generated_at": "2026-04-03T22:56:02Z",
+  "source": "AbuseIPDB blacklist (confidenceMinimum=90, limit=50)",
+  "total_ips": 50,
+  "results": [
+    {
+      "ip": "20.240.45.211",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.89
+    },
+    {
+      "ip": "20.63.102.187",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.26
+    },
+    {
+      "ip": "20.65.118.88",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 32.32
+    },
+    {
+      "ip": "20.238.101.185",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.77
+    },
+    {
+      "ip": "20.63.60.10",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.49
+    },
+    {
+      "ip": "152.52.213.98",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.82
+    },
+    {
+      "ip": "197.5.145.114",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.49
+    },
+    {
+      "ip": "92.118.39.62",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 37.38
+    },
+    {
+      "ip": "202.88.254.53",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 38.28
+    },
+    {
+      "ip": "20.63.96.180",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 32.98
+    },
+    {
+      "ip": "20.250.12.127",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.67
+    },
+    {
+      "ip": "20.63.47.115",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 38.02
+    },
+    {
+      "ip": "20.48.232.178",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.69
+    },
+    {
+      "ip": "20.38.37.110",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.29
+    },
+    {
+      "ip": "20.24.82.132",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.02
+    },
+    {
+      "ip": "206.189.49.128",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.52
+    },
+    {
+      "ip": "204.168.150.11",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.75
+    },
+    {
+      "ip": "20.250.17.247",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.38
+    },
+    {
+      "ip": "203.177.0.101",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.94
+    },
+    {
+      "ip": "202.62.43.154",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 37.64
+    },
+    {
+      "ip": "20.250.14.170",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.16
+    },
+    {
+      "ip": "20.238.36.81",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 37.5
+    },
+    {
+      "ip": "20.203.142.71",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 35.76
+    },
+    {
+      "ip": "202.137.4.148",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 35.03
+    },
+    {
+      "ip": "20.203.130.156",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.51
+    },
+    {
+      "ip": "20.223.180.142",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.72
+    },
+    {
+      "ip": "20.226.83.230",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 32.69
+    },
+    {
+      "ip": "213.209.159.159",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 37.78
+    },
+    {
+      "ip": "20.214.158.14",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.66
+    },
+    {
+      "ip": "20.211.123.94",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.53
+    },
+    {
+      "ip": "66.132.186.245",
+      "abuse_confidence_score": 100,
+      "final_action": "log_only",
+      "policy_decision": "ALLOW",
+      "classification": "log_only",
+      "latency_s": 34.02
+    },
+    {
+      "ip": "20.234.32.115",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.71
+    },
+    {
+      "ip": "115.132.72.198",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 41.86
+    },
+    {
+      "ip": "20.220.210.206",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 38.03
+    },
+    {
+      "ip": "2.57.122.191",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 40.17
+    },
+    {
+      "ip": "80.94.92.177",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 42.24
+    },
+    {
+      "ip": "92.118.39.95",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 40.65
+    },
+    {
+      "ip": "20.212.0.99",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 34.77
+    },
+    {
+      "ip": "202.180.20.138",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 35.86
+    },
+    {
+      "ip": "20.215.186.32",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 33.47
+    },
+    {
+      "ip": "195.248.240.39",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 32.87
+    },
+    {
+      "ip": "20.200.222.0",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 49.55
+    },
+    {
+      "ip": "20.220.61.78",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.96
+    },
+    {
+      "ip": "20.208.32.234",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 37.07
+    },
+    {
+      "ip": "20.223.192.46",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.23
+    },
+    {
+      "ip": "20.219.8.72",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.05
+    },
+    {
+      "ip": "20.216.179.254",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 35.49
+    },
+    {
+      "ip": "20.215.254.185",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 38.66
+    },
+    {
+      "ip": "20.215.240.160",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 36.69
+    },
+    {
+      "ip": "20.216.128.30",
+      "abuse_confidence_score": 100,
+      "final_action": "block_ip",
+      "policy_decision": "ALLOW",
+      "classification": "block_ip",
+      "latency_s": 38.72
+    }
+  ],
+  "summary": {
+    "blocked": 49,
+    "alerted": 0,
+    "escalated": 0,
+    "logged": 1,
+    "errors": 0,
+    "avg_latency_s": 36.42,
+    "detection_rate": 0.98
+  }
+}

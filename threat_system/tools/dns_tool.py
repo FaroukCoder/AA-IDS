@@ -15,7 +15,13 @@ class DNSTool:
     def fetch(self, ip: str) -> dict[str, Any]:
         _validate_ip(ip)
         try:
-            hostname, _, _ = socket.gethostbyaddr(ip)
+            # B5: gethostbyaddr() blocks indefinitely without a timeout.
+            old_timeout = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(5.0)
+            try:
+                hostname, _, _ = socket.gethostbyaddr(ip)
+            finally:
+                socket.setdefaulttimeout(old_timeout)
             return {"hostname": hostname, "ip": ip}
         except Exception as e:
             return {"error": str(e), "fallback": True, "ip": ip, "hostname": None}
