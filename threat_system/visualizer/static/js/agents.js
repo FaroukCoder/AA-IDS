@@ -1,14 +1,14 @@
 /**
- * agents.js — Floating agent portrait logic (stub).
- * Full implementation deferred to a later phase.
+ * agents.js — Floating agent portrait manager (disabled).
+ *
+ * Right-side portrait overlays removed — agent voices appear in the
+ * monologue panel instead. All methods are safe no-ops.
  */
 
 const Agents = (() => {
-
-  function reset()          { /* TODO: hide all agent icons */ }
-  function summon(agentId)  { /* TODO: animate agent icon in */ }
-  function complete(agentId){ /* TODO: mark agent done */ }
-
-  return { reset, summon, complete };
-
+  function reset()           {}
+  function scaffold()        {}
+  function summon()          {}
+  function complete()        {}
+  return { reset, scaffold, summon, complete };
 })();

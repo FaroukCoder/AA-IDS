@@ -16,13 +16,14 @@ const State = (() => {
   }
 
   // ── UI side-effects per scene ────────────────────────────────────────────
+  // NOTE: Monologue visibility is owned exclusively by websocket.js (run_start /
+  // run_complete handlers). Do NOT add monologue show logic here.
   function applySceneUI(scene) {
-    const cabinet  = document.getElementById('cabinet-panel');
-    const tab      = document.getElementById('panel-tab');
-    const mono     = document.getElementById('monologue-panel');
+    const cabinet   = document.getElementById('cabinet-panel');
+    const tab       = document.getElementById('panel-tab');
     const showPanel = (scene === 'd2' || scene === 'd3');
 
-    // Cabinet panel: open in D2/D3, closed in D1/investigation
+    // Cabinet panel: open in D2/D3, closed in D1
     cabinet.classList.toggle('visible', showPanel);
 
     // Tab: shown in D2/D3; tracks panel state
@@ -37,12 +38,14 @@ const State = (() => {
       Cabinet.showList();
     }
 
-    // Monologue: investigation only (deferred)
-    mono.style.display = (scene === 'investigation') ? 'block' : 'none';
-
-    // Agents reset when leaving investigation
-    if (scene !== 'investigation') {
+    // Reset agent portraits only when entering D2/D3 and no run is active.
+    // Guard prevents wiping portraits mid-investigation if user navigates.
+    if (showPanel && !window._runActive) {
       Agents.reset();
+      if (typeof Tendrils !== 'undefined' && typeof Tendrils.resetAll === 'function') {
+        Tendrils.resetAll();
+      }
+      // DO NOT touch #monologue-panel here — websocket.js owns it exclusively.
     }
   }
 

@@ -230,19 +230,22 @@
 
 .agent-icon-sm {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(200, 134, 10, 0.12);
   border: 1px solid var(--ochre-dim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  color: var(--ochre);
-  font-family: var(--font-display);
-  letter-spacing: 0;
-  text-transform: uppercase;
+  overflow: hidden;
+  background: rgba(200, 134, 10, 0.08);
+}
+
+.agent-icon-sm img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  /* Slight sepia tint to match the worn-paper aesthetic */
+  filter: sepia(0.3) brightness(0.9);
 }
 
 .agent-body {

@@ -52,7 +52,8 @@ const Hover = (() => {
 
     zone.addEventListener('mouseenter', () => {
       if (VideoManager.isTransitioning()) return;
-      if (Cabinet.isOpen()) return;   // panel open — hover navigation disabled
+      // Panel is on the LEFT — only block the back (left) zone when open
+      if (direction === 'back' && Cabinet.isOpen()) return;
       _startFill(zoneId);
       _timers[direction] = setTimeout(() => {
         _resetFill(zoneId);

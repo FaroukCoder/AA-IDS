@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AA-IDS — Detective</title>
 
+  <!-- Google Fonts: Cinzel (display) + Caveat (handwritten) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&display=swap">
   <!-- Detective palette + typography -->
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme.css?v=4" />
   <!-- Full-screen video layer stack -->
-  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/layout.css?v=4" />
   <!-- Hover zones + SVG loading rings -->
-  <link rel="stylesheet" href="css/hover-zones.css" />
+  <link rel="stylesheet" href="css/hover-zones.css?v=4" />
   <!-- Stubs — wired up next phase -->
-  <link rel="stylesheet" href="css/cabinet.css" />
-  <link rel="stylesheet" href="css/monologue.css" />
-  <link rel="stylesheet" href="css/run-detail.css" />
+  <link rel="stylesheet" href="css/cabinet.css?v=4" />
+  <link rel="stylesheet" href="css/monologue.css?v=4" />
+  <link rel="stylesheet" href="css/run-detail.css?v=4" />
 </head>
 <body>
 
@@ -36,7 +40,7 @@
   <canvas id="tendrils-canvas"></canvas>
 
   <!-- ── Layer 20: Agent portraits (populated by agents.js) ────────────── -->
-  <!-- Agent icons injected here at runtime -->
+  <div id="agent-layer"></div>
 
   <!-- ── Layer 30: Cabinet panel (LEFT — D2 case list / D3 case detail) ─── -->
   <!-- Structure injected by cabinet.js on first reload() call -->
@@ -48,9 +52,16 @@
   <!-- ── Panel toggle tab (D2/D3 — floats at panel edge) ───────────────── -->
   <button id="panel-tab" title="Toggle case files"></button>
 
-  <!-- ── Layer 40: Monologue panel (investigation) ──────────────────────── -->
+  <!-- ── Layer 40: Monologue panel (D1 investigation overlay) ──────────── -->
   <div id="monologue-panel">
-    <!-- Speech bubble populated by monologue.js -->
+    <div id="monologue-header">
+      <span id="monologue-title">INTERNAL MONOLOGUE</span>
+      <span id="monologue-run-id"></span>
+      <button id="monologue-close" onclick="Monologue.hide()">×</button>
+    </div>
+    <div id="monologue-scroll">
+      <div id="monologue-entries"></div>
+    </div>
   </div>
 
   <!-- ── Layer 50: Hover zones ──────────────────────────────────────────── -->
@@ -78,14 +89,14 @@
   </div>
 
   <!-- ── Scripts (order matters: dependencies first) ────────────────────── -->
-  <script src="js/video-manager.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/hover.js"></script>
-  <script src="js/tendrils.js"></script>
-  <script src="js/agents.js"></script>
-  <script src="js/monologue.js"></script>
-  <script src="js/cabinet.js"></script>
-  <script src="js/websocket.js"></script>
+  <script src="js/video-manager.js?v=4"></script>
+  <script src="js/state.js?v=4"></script>
+  <script src="js/hover.js?v=4"></script>
+  <script src="js/tendrils.js?v=4"></script>
+  <script src="js/agents.js?v=4"></script>
+  <script src="js/monologue.js?v=4"></script>
+  <script src="js/cabinet.js?v=4"></script>
+  <script src="js/websocket.js?v=4"></script>
 
   <!-- ── Bootstrap ─────────────────────────────────────────────────────── -->
   <script>

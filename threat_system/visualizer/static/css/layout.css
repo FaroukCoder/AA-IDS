@@ -131,7 +131,7 @@
 #panel-tab {
   position: fixed;
   left: 0;
-  top: 50%;
+  top: 70%;
   transform: translateY(-50%);
   z-index: 31;
   background: rgba(8, 7, 4, 0.92);
@@ -172,23 +172,36 @@
   opacity: 0;
 }
 
-/* ── Monologue panel (investigation — stub) ──────────────────────────────── */
-#monologue-panel {
+/* ── Agent icon layer — floating portraits during live runs ──────────────── */
+/* Portrait sizing and appearance handled by agents.js inline styles +         */
+/* the brushstroke SVG mask system. This layer just provides the stacking ctx. */
+#agent-layer {
   position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 40;
-  display: none;
-  max-width: 600px;
-  width: 90%;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
 }
 
-/* ── Agent icons (stub) ──────────────────────────────────────────────────── */
+/* Base agent icon positioning (inline CSS from agents.js takes precedence) */
 .agent-icon {
   position: fixed;
   z-index: 20;
+  width: 72px;
+  height: 72px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--fade-slow);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.agent-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.15) brightness(0.88);
+  border-radius: 50%;
+}
+
+.agent-icon.agent-complete img {
+  filter: sepia(0.3) brightness(1.05);
+  box-shadow: 0 0 12px rgba(200, 134, 10, 0.5);
 }

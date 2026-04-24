@@ -102,6 +102,24 @@ const Cabinet = (() => {
     },
   ];
 
+  // ── Live agent map (backend snake_case → portrait + id) ──────────────────
+  const LIVE_AGENT_MAP = {
+    whois:      { id: 'WH', portrait: 'memory'       },
+    dns:        { id: 'DN', portrait: 'auditory'      },
+    port_intel: { id: 'PI', portrait: 'visual_cortex' },
+    reputation: { id: 'RP', portrait: 'logic_center'  },
+  };
+
+  // ── Agent portrait mapping ────────────────────────────────────────────────
+  // Maps agent id → portrait filename (no extension) in assets/agents/
+  const AGENT_PORTRAITS = {
+    WH: 'memory',        // WHOIS  — looking up historical records
+    DN: 'auditory',      // DNS    — listening to domain resolution
+    PI: 'visual_cortex', // Port Intel — scanning / seeing open ports
+    RP: 'logic_center',  // Reputation — logical reasoning about threat scores
+  };
+  const PORTRAIT_FALLBACK = 'shivers';
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   function _verdictClass(action) {
@@ -152,15 +170,20 @@ const Cabinet = (() => {
     const conf = Math.round(caseData.confidence * 100);
 
     // Agent chain HTML
-    const agentsHtml = caseData.agents.map(a => `
-      <div class="agent-entry${a.fallback ? ' fallback' : ''}">
-        <div class="agent-icon-sm">${a.id}</div>
-        <div class="agent-body">
-          <div class="agent-name-sm">${a.name}</div>
-          <div class="agent-finding">${a.finding}</div>
+    const agentsHtml = caseData.agents.map(a => {
+      const portrait = AGENT_PORTRAITS[a.id] || PORTRAIT_FALLBACK;
+      return `
+        <div class="agent-entry${a.fallback ? ' fallback' : ''}">
+          <div class="agent-icon-sm">
+            <img src="assets/agents/${portrait}.png" alt="${a.name}" />
+          </div>
+          <div class="agent-body">
+            <div class="agent-name-sm">${a.name}</div>
+            <div class="agent-finding">${a.finding}</div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Timeline HTML
     const tlHtml = caseData.timeline.map(t => `
@@ -237,12 +260,128 @@ const Cabinet = (() => {
       </div>
     `;
 
-    // Populate case list
+    // Populate case list with fake cases
     const list = panel.querySelector('.case-list');
     CASES.forEach(c => list.appendChild(_buildCard(c)));
 
     // Back button
     panel.querySelector('#detail-back-btn').addEventListener('click', showList);
+
+    // Load live history from server (prepends to fake cases)
+    loadHistory();
+  }
+
+  // ── Live data ─────────────────────────────────────────────────────────────
+
+  /** Called on `run_complete` WebSocket event — prepends a card to the list. */
+  function addLiveRun(summary) {
+    _ensureStructure();
+    // live.py broadcasts: event_id, target (src_ip), final_action,
+    // classification (policy_decision), confidence
+    const action = summary.final_action || 'log_only';
+    const stub = {
+      id:             summary.event_id   || String(Date.now()),
+      ip:             summary.target     || summary.src_ip || '?',
+      type:           summary.event_type || 'Threat Detected',
+      action:         action,
+      verdict:        _verdictClass(action),
+      classification: summary.classification || 'unknown',
+      confidence:     summary.confidence     || 0,
+      timestamp:      new Date().toLocaleString(),
+      agents: [], timeline: [], geo: {},
+      _liveEventId: summary.event_id,
+    };
+    const list = document.querySelector('.case-list');
+    if (!list) return;
+    list.insertBefore(_buildCard(stub), list.firstChild);
+
+    // Update the run count in the header
+    const countEl = document.querySelector('.case-count');
+    if (countEl) {
+      const total = list.querySelectorAll('.case-card').length;
+      countEl.textContent = `${total} recent run${total !== 1 ? 's' : ''}`;
+    }
+  }
+
+  /** Fetch last 10 runs from REST and add them as live cards. */
+  function loadHistory() {
+    fetch('/api/history')
+      .then(r => r.json())
+      .then(runs => runs.forEach(addLiveRun))
+      .catch(() => {}); // offline — fake cases still show
+  }
+
+  /**
+   * Called when a `__replay__` WebSocket message arrives.
+   * If the detail view is active, hydrate it with the real agent data.
+   */
+  function hydrateDetail(events) {
+    const dv = document.getElementById('cabinet-detail-view');
+    if (!dv || !dv.classList.contains('active')) return;
+    const caseData = _buildCaseFromReplay(events);
+    if (caseData) showDetail(caseData);
+  }
+
+  function _buildCaseFromReplay(events) {
+    let ip = '?', type = '?', action = 'log_only', classification = 'unknown';
+    let confidence = 0;
+    const geo = {};
+    const agents = [];
+
+    for (const e of events) {
+      if (e.stage === 'event') {
+        const r = e.raw || {};
+        ip   = r.src_ip      || ip;
+        type = r.event_type  || type;
+      }
+      if (e.stage === 'agent_report') {
+        const r   = e.raw       || {};
+        const n   = e.narration || {};
+        const key = r.agent_name;
+        const map = LIVE_AGENT_MAP[key] || { id: (key || '?').slice(0, 2).toUpperCase(), portrait: 'shivers' };
+        agents.push({
+          id:       map.id,
+          name:     key || '?',
+          finding:  n.inner_voice || '',
+          fallback: !!r.fallback,
+        });
+        if (key === 'whois') {
+          const f = r.findings || {};
+          geo.country = f.country || '';
+          geo.isp     = f.org    || '';
+          geo.domain  = f.hosting_provider || '';
+          geo.city    = f.city   || '';
+        }
+        if (key === 'dns') {
+          geo.hostname = (r.findings || {}).hostname || '';
+        }
+      }
+      if (e.stage === 'investigator_result') {
+        const r    = e.raw || {};
+        classification = r.classification    || classification;
+        confidence     = r.confidence        || confidence;
+        action         = r.recommended_action || action;
+      }
+      if (e.stage === 'policy_result') {
+        action = (e.raw || {}).final_action || action;
+      }
+    }
+
+    if (ip === '?') return null;
+    return {
+      id: ip, ip, type, action,
+      verdict:        _verdictClass(action),
+      classification, confidence,
+      timestamp: new Date().toLocaleString(),
+      geo: {
+        country:  geo.country  || '?',
+        city:     geo.city     || '?',
+        isp:      geo.isp      || '?',
+        domain:   geo.domain   || '?',
+        hostname: geo.hostname || '?',
+      },
+      agents, timeline: [],
+    };
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
@@ -297,8 +436,13 @@ const Cabinet = (() => {
     dv.style.display = 'flex';
     dv.classList.add('active');
     scroll.scrollTop = 0;
+
+    // Request full replay AFTER D3 is active so hydrateDetail's guard passes.
+    if (caseData._liveEventId) {
+      WS.requestReplay(caseData._liveEventId);
+    }
   }
 
-  return { reload, showList, showDetail, isOpen, toggle };
+  return { reload, showList, showDetail, isOpen, toggle, addLiveRun, hydrateDetail };
 
 })();

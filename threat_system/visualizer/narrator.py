@@ -64,16 +64,15 @@ def _profile(agent_name: str) -> dict:
 
 def _voice_whois(findings: dict, fallback: bool) -> str:
     if fallback or not findings:
-        return "RDAP lookup failed. No ownership data available."
-    org = findings.get("org", "Unknown organisation")
-    hosting = findings.get("hosting_provider", "")
+        return "RDAP failed. No ownership data."
+    org     = findings.get("org", "Unknown org")
     country = findings.get("country", "")
-    is_vps = findings.get("is_vps_hosting", False)
-    risk_note = findings.get("risk_note", "")
-    vps_str = " VPS/cloud infrastructure — common attacker base." if is_vps else ""
-    host_str = f" ({hosting})" if hosting else ""
-    loc_str = f", {country}" if country else ""
-    return f"IP registered to {org}{host_str}{loc_str}.{vps_str} {risk_note}".strip()
+    is_vps  = findings.get("is_vps_hosting", False)
+    note    = findings.get("risk_note", "")
+    loc     = f", {country}" if country else ""
+    vps     = " VPS." if is_vps else ""
+    tail    = f" {note[:45]}…" if len(note) > 45 else (f" {note}" if note else "")
+    return f"{org}{loc}.{vps}{tail}".strip()
 
 
 def _voice_dns(findings: dict, fallback: bool) -> str:
@@ -106,15 +105,14 @@ def _voice_reputation(findings: dict, fallback: bool) -> str:
 
 def _voice_port_intel(findings: dict, fallback: bool) -> str:
     if fallback or not findings:
-        return "Port database lookup failed. Proceeding without service mapping."
-    services = findings.get("services_targeted", [])
+        return "Port DB failed. No service mapping."
+    services   = findings.get("services_targeted", [])
     techniques = findings.get("mitre_techniques", [])
-    pattern = findings.get("attack_pattern", "")
-    ports = findings.get("ports_analyzed", [])
-    svc_str = ", ".join(str(s) for s in services[:3]) if services else "unrecognised"
-    tec_str = ", ".join(str(t) for t in techniques[:2]) if techniques else "none mapped"
-    pat_str = f" Pattern: {pattern}." if pattern else ""
-    return f"Ports {list(ports)[:5]} -> {svc_str}. Techniques: {tec_str}.{pat_str}"
+    pattern    = findings.get("attack_pattern", "")
+    svc  = ", ".join(str(s) for s in services[:2]) if services else "unknown"
+    tec  = techniques[0] if techniques else "unmapped"
+    pat  = f" {pattern[:30]}…" if len(pattern) > 30 else (f" {pattern}" if pattern else "")
+    return f"{svc} → {tec}.{pat}".strip()
 
 
 def _voice_generic(agent_name: str, findings: dict, fallback: bool) -> str:
@@ -253,12 +251,10 @@ def narrate_orchestrator(result: Any) -> dict | None:
     else:
         context = "benign"
 
-    agents_str = ", ".join(agents) if agents else "unknown"
-    esc_str = " — auto-escalating (confidence below threshold)." if auto_esc else ""
-    short_reason = reasoning[:120] + ("…" if len(reasoning) > 120 else "")
+    esc_str      = " Auto-escalating." if auto_esc else ""
+    short_reason = (reasoning[:55] + "…") if len(reasoning) > 55 else reasoning
     inner = (
-        f"Consulted: {agents_str}. Classification: {cls.upper()} "
-        f"({confidence:.0%} confidence). Action: {action}.{esc_str} "
+        f"{cls.upper()} ({confidence:.0%}) — {action.replace('_', ' ')}.{esc_str} "
         f"{short_reason}"
     ).strip()
 
@@ -291,11 +287,8 @@ def narrate_policy(policy: Any) -> dict | None:
         "ESCALATE":  "low_confidence",
     }.get(decision, "high_confidence")
 
-    inner = (
-        f"LLM recommended: {original}. "
-        f"Policy decision: {decision} -> final action: {final}. "
-        f"{reason}"
-    ).strip()
+    short_reason = (reason[:60] + "…") if len(reason) > 60 else reason
+    inner = f"{decision}: {final.replace('_', ' ')}. {short_reason}".strip()
 
     verdict_map = {
         "ALLOW":     "clean" if final == "log_only" else "malicious",
