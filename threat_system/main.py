@@ -159,7 +159,7 @@ def _make_live_stage_handler(broadcast_fn, narrator_mod):
     No JSON panels, no thought bubbles — those stay in the web UI.
     """
     from .visualizer import ws_server
-    from .framework import terminal_display as td
+    from .framework import display as td
 
     state: dict = {"agent_count": 0, "agent_total": 4}
 
