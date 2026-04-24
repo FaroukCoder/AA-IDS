@@ -1,52 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AA-IDS — Live Decision Visualizer</title>
-  <link rel="stylesheet" href="theme.css">
-  <link rel="stylesheet" href="layout.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AA-IDS — Detective</title>
+
+  <!-- Google Fonts: Cinzel (display) + Caveat (handwritten) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cinzel:wght@400;600&display=swap">
+  <!-- Detective palette + typography -->
+  <link rel="stylesheet" href="css/theme.css?v=4" />
+  <!-- Full-screen video layer stack -->
+  <link rel="stylesheet" href="css/layout.css?v=4" />
+  <!-- Hover zones + SVG loading rings -->
+  <link rel="stylesheet" href="css/hover-zones.css?v=4" />
+  <!-- Stubs — wired up next phase -->
+  <link rel="stylesheet" href="css/cabinet.css?v=4" />
+  <link rel="stylesheet" href="css/monologue.css?v=4" />
+  <link rel="stylesheet" href="css/run-detail.css?v=4" />
 </head>
 <body>
 
-  <!-- ── Header ──────────────────────────────────────────────────── -->
-  <div id="header">
-    <h1>AA-IDS · Live Decision Visualizer</h1>
-    <div id="status-dot"></div>
-    <span id="status-label">Connecting…</span>
-  </div>
+  <!-- ── Layer 1: Static PNG fallback ──────────────────────────────────── -->
+  <img id="static-bg" src="assets/detective_1.png" alt="" />
 
-  <!-- ── Controls ────────────────────────────────────────────────── -->
-  <div id="controls">
-    <select id="scenario-select">
-      <option value="attack">Attack</option>
-      <option value="spike">Spike</option>
-      <option value="benign">Benign</option>
-    </select>
-    <button id="btn-run">▶ Run scenario</button>
+  <!-- ── Layer 2: Scene loop videos (crossfade pair) ───────────────────── -->
+  <video id="loop-video-a" class="bg-video" muted playsinline autoplay loop></video>
+  <video id="loop-video-b" class="bg-video" muted playsinline         loop></video>
 
-    <input id="ip-input" type="text" placeholder="IP address…" spellcheck="false">
-    <button id="btn-ip">🔍 Investigate IP</button>
+  <!-- ── Layer 3: Transition video ──────────────────────────────────────── -->
+  <video id="transition-video" class="bg-video" muted playsinline></video>
 
-    <button id="btn-eval">📊 Run evaluation</button>
-  </div>
+  <!-- ── Layer 4: Ambient overlays ──────────────────────────────────────── -->
+  <div id="brain-glow"></div>
+  <div id="smoke-overlay"></div>
 
-  <!-- ── Main ─────────────────────────────────────────────────────── -->
-  <div id="main">
+  <!-- ── Layer 10: Neural tendrils canvas ───────────────────────────────── -->
+  <canvas id="tendrils-canvas"></canvas>
 
-    <!-- Sidebar: run history -->
-    <div id="sidebar">
-      <div id="sidebar-title">Recent runs</div>
-      <div id="history-list"></div>
+  <!-- ── Layer 20: Agent portraits (populated by agents.js) ────────────── -->
+  <div id="agent-layer"></div>
+
+  <!-- ── Layer 30: Cabinet panel (LEFT — D2 case list / D3 case detail) ─── -->
+  <!-- Structure injected by cabinet.js on first reload() call -->
+  <aside id="cabinet-panel"></aside>
+
+  <!-- run-detail-overlay kept for layout compat; unused this phase -->
+  <div id="run-detail-overlay"></div>
+
+  <!-- ── Panel toggle tab (D2/D3 — floats at panel edge) ───────────────── -->
+  <button id="panel-tab" title="Toggle case files"></button>
+
+  <!-- ── Layer 40: Monologue panel (D1 investigation overlay) ──────────── -->
+  <div id="monologue-panel">
+    <div id="monologue-header">
+      <span id="monologue-title">INTERNAL MONOLOGUE</span>
+      <span id="monologue-run-id"></span>
+      <button id="monologue-close" onclick="Monologue.hide()">×</button>
     </div>
-
-    <!-- Tree canvas -->
-    <div id="tree-wrap"></div>
-
+    <div id="monologue-scroll">
+      <div id="monologue-entries"></div>
+    </div>
   </div>
 
-  <!-- components.js must load before logic.js (defines mkNode, AGENT_CONFIG, etc.) -->
-  <script src="components.js" defer></script>
-  <script src="logic.js"      defer></script>
+  <!-- ── Layer 50: Hover zones ──────────────────────────────────────────── -->
+
+  <!-- Left zone: navigate BACK -->
+  <div id="hover-left" class="hover-zone hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="40" cy="40" r="34" />
+        <circle class="ring-fill"  cx="40" cy="40" r="34" />
+      </svg>
+      <div class="ring-arrow">&#8592;</div>
+    </div>
+  </div>
+
+  <!-- Right zone: navigate FORWARD -->
+  <div id="hover-right" class="hover-zone hidden">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="40" cy="40" r="34" />
+        <circle class="ring-fill"  cx="40" cy="40" r="34" />
+      </svg>
+      <div class="ring-arrow">&#8594;</div>
+    </div>
+  </div>
+
+  <!-- ── Scripts (order matters: dependencies first) ────────────────────── -->
+  <script src="js/video-manager.js?v=4"></script>
+  <script src="js/state.js?v=4"></script>
+  <script src="js/hover.js?v=4"></script>
+  <script src="js/tendrils.js?v=4"></script>
+  <script src="js/agents.js?v=4"></script>
+  <script src="js/monologue.js?v=4"></script>
+  <script src="js/cabinet.js?v=4"></script>
+  <script src="js/websocket.js?v=4"></script>
+
+  <!-- ── Bootstrap ─────────────────────────────────────────────────────── -->
+  <script>
+    VideoManager.preload();
+    State.set('d1');
+    Hover.init();
+    Tendrils.init();
+    WS.connect();
+  </script>
+
 </body>
 </html>

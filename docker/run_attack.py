@@ -48,6 +48,8 @@ CONTAINER = "threat-lab-attacker"
 
 REAL_ATTACKS = ["port_scan", "traffic_spike", "brute_force"]
 
+QUICK_ATTACKS = ["quick_port_scan", "quick_ssh_spray", "quick_http_flood"]
+
 BENIGN_ATTACKS = [
     "benign_google_scan",
     "benign_cdn_check",
@@ -61,12 +63,15 @@ HARMLESS_ATTACKS = [
     "harmless_known_scanner",
 ]
 
-ALL_ATTACKS = REAL_ATTACKS + BENIGN_ATTACKS + HARMLESS_ATTACKS
+ALL_ATTACKS = REAL_ATTACKS + QUICK_ATTACKS + BENIGN_ATTACKS + HARMLESS_ATTACKS
 
 _ATTACK_LABELS: dict[str, str] = {
     "port_scan":               "🔴  port_scan          [dim](real — ESCALATE_HUMAN expected)[/dim]",
     "traffic_spike":           "🔴  traffic_spike       [dim](real — ESCALATE_HUMAN expected)[/dim]",
     "brute_force":             "🔴  brute_force         [dim](real — ESCALATE_HUMAN expected)[/dim]",
+    "quick_port_scan":         "⚡  quick_port_scan     [dim](1 run — port_scan rule only)[/dim]",
+    "quick_ssh_spray":         "⚡  quick_ssh_spray     [dim](1 run — failed_conn rule only)[/dim]",
+    "quick_http_flood":        "⚡  quick_http_flood    [dim](1 run — traffic_spike rule only)[/dim]",
     "benign_google_scan":      "🟢  benign_google_scan  [dim](false alarm — LOG_ONLY expected)[/dim]",
     "benign_cdn_check":        "🟢  benign_cdn_check    [dim](false alarm — LOG_ONLY expected)[/dim]",
     "benign_slow_touch":       "🟢  benign_slow_touch   [dim](false alarm — NO detection)[/dim]",

@@ -1,0 +1,109 @@
+/* ── Detective UI — Hover zones & SVG loading rings ─────────────────────── */
+
+/* ── Zone containers ─────────────────────────────────────────────────────── */
+.hover-zone {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  z-index: 50;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.hover-zone.hidden {
+  display: none;
+  pointer-events: none;
+}
+
+#hover-left  { left: 0;  justify-content: flex-start; }
+#hover-right { right: 0; justify-content: flex-end;   }
+
+/* Subtle edge gradient — visible on hover */
+#hover-left::before,
+#hover-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#hover-left::before {
+  background: linear-gradient(to right, rgba(200, 134, 10, 0.08), transparent);
+}
+
+#hover-right::before {
+  background: linear-gradient(to left, rgba(200, 134, 10, 0.08), transparent);
+}
+
+#hover-left:hover::before,
+#hover-right:hover::before {
+  opacity: 1;
+}
+
+/* ── SVG ring wrapper ────────────────────────────────────────────────────── */
+.ring-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* Rings are half off-screen so only the inner arc is visible */
+#hover-left  .ring-wrap { transform: translateX(-50%); }
+#hover-right .ring-wrap { transform: translateX(+50%); }
+
+#hover-left:hover  .ring-wrap,
+#hover-right:hover .ring-wrap {
+  opacity: 1;
+}
+
+/* ── SVG circles ─────────────────────────────────────────────────────────── */
+.ring-wrap svg {
+  width: 80px;
+  height: 80px;
+  transform: rotate(-90deg); /* start fill from top */
+}
+
+/* Background track */
+.ring-track {
+  fill: none;
+  stroke: var(--ring-bg);
+  stroke-width: 4;
+}
+
+/* Animated fill arc */
+.ring-fill {
+  fill: none;
+  stroke: var(--ring-stroke);
+  stroke-width: 4;
+  stroke-linecap: round;
+  /* circumference of r=34: 2π×34 ≈ 213.63 — use 125.66 for half-ring (r=20, 2π×20) */
+  /* r=34 full circle = 213.63 */
+  stroke-dasharray: 213.63;
+  stroke-dashoffset: 213.63; /* fully hidden */
+  transition: none; /* default: instant reset */
+}
+
+.ring-fill.filling {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--ring-duration) linear;
+}
+
+/* Direction arrow inside ring */
+.ring-arrow {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--ochre);
+  opacity: 0.8;
+  pointer-events: none;
+}

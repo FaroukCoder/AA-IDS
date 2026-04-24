@@ -1,0 +1,48 @@
+/* ── Detective UI — Colour palette & typography ─────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap');
+
+:root {
+  /* Core palette */
+  --bg-deep:    #0b0a07;
+  --bg-mid:     #12100c;
+  --ochre:      #c8860a;
+  --ochre-dim:  #7a520a;
+  --burgundy:   #6b1a2a;
+  --bone:       #e8dfc8;
+  --bone-dim:   #9a9078;
+  --smoke:      rgba(200, 180, 140, 0.06);
+  --glow-amber: rgba(200, 134, 10, 0.18);
+  --glow-core:  rgba(255, 200, 80, 0.35);
+
+  /* Hover ring */
+  --ring-duration: 2s;
+  --ring-stroke:   #c8860a;
+  --ring-bg:       rgba(200, 134, 10, 0.12);
+
+  /* Transitions */
+  --panel-transition: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  --fade-fast:        0.25s ease;
+  --fade-slow:        0.6s ease;
+
+  /* Typography */
+  --font-display: 'Cinzel', serif;
+  --font-hand:    'Caveat', cursive;
+  --font-mono:    'Courier New', Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  user-select: none;
+}

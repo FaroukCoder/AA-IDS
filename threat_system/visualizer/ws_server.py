@@ -253,6 +253,10 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_error(self, fmt: str, *args: Any) -> None:     # type: ignore[override]
         pass
 
+    def end_headers(self) -> None:                         # type: ignore[override]
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def do_GET(self) -> None:                               # type: ignore[override]
         if self.path == "/api/history":
             self._json_response(_history_payload())
@@ -314,7 +318,16 @@ def _history_payload() -> list[dict]:
 # ------------------------------------------------------------------
 
 def _run_http_thread() -> None:
-    server = http.server.ThreadingHTTPServer(("localhost", HTTP_PORT), _QuietHandler)
+    try:
+        server = http.server.ThreadingHTTPServer(("localhost", HTTP_PORT), _QuietHandler)
+    except OSError as exc:
+        print(
+            f"\n  [visualizer] HTTP FAILED to bind port {HTTP_PORT}: {exc}\n"
+            f"  -> Kill any process on port {HTTP_PORT} and restart.\n"
+            f"  -> Windows: netstat -ano | findstr :{HTTP_PORT}  then taskkill /PID <pid> /F\n",
+            flush=True,
+        )
+        return
     server.serve_forever()
 
 
