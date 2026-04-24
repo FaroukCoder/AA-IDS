@@ -1,26 +1,57 @@
-threat_system/config/.env
-threat_system/logs/api_cache.json
-threat_system/logs/llm_cache.json
-threat_system/logs/blocked_ips.txt
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
+# ── Python ───────────────────────────────────────────────────────
 .venv/
 venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
 *.egg-info/
 dist/
 build/
-.env
+.eggs/
+*.so
 
-# Runtime-generated logs — never commit
-threat_system/logs/
+# ── Testing & Coverage ───────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.txt
+coverage.xml
+pytest_out.txt
+pytest_out.log
+htmlcov/
 
-# IDE / tool config — personal, not project
-.claude/
+# ── IDE & Local Config ───────────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+.claude/settings.local.json
+.claude/launch.json
+
+# ── Claude Code Plugin Artifacts ────────────────────────────────
 .agents/
 .kiro/
 skills-lock.json
-pytest_out.txt
-Visuals/
+
+# ── Runtime Logs & Caches ────────────────────────────────────────
+threat_system/logs/*.json
+threat_system/logs/*.jsonl
+!threat_system/logs/.gitkeep
+
+# ── Secrets ──────────────────────────────────────────────────────
+threat_system/config/.env
+*.env
+!*.env.example
+
+# ── OS ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Planning/Temp Docs ───────────────────────────────────────────
 spec_v5.1.md
+
+# ── Large binary assets ──────────────────────────────────────────
+threat_system/visualizer/static/assets/videos/
+Visuals/
