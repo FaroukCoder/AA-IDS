@@ -6,7 +6,7 @@ import threading
 import time
 from typing import Any
 
-import anthropic
+import openai
 
 from ..config.settings import settings
 
@@ -83,21 +83,26 @@ def call(system: str, user: str) -> dict[str, Any]:
         if key in cache:
             return cache[key]
 
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    client = openai.OpenAI(
+        base_url=settings.llm_base_url,
+        api_key=settings.nvidia_api_key,
+    )
     max_retries = 6
     last_error: Exception | None = None
 
     for attempt in range(max_retries):
         with _api_semaphore:
             try:
-                response = client.messages.create(
-                    model="claude-sonnet-4-6",
+                response = client.chat.completions.create(
+                    model=settings.llm_model,
                     max_tokens=1024,
                     temperature=0,
-                    system=system,
-                    messages=[{"role": "user", "content": user}],
+                    messages=[
+                        {"role": "system", "content": system},
+                        {"role": "user",   "content": user},
+                    ],
                 )
-                content = response.content[0].text
+                content = response.choices[0].message.content
                 result = _parse_json(content)
 
                 # Write back to cache under lock to prevent concurrent corruption.
@@ -113,14 +118,14 @@ def call(system: str, user: str) -> dict[str, Any]:
                 if attempt < max_retries - 1:
                     time.sleep(2 * (attempt + 1))
 
-            except anthropic.RateLimitError as e:
+            except openai.RateLimitError as e:
                 last_error = e
                 # Exponential backoff: 20s, 40s, 60s, 80s, 100s
                 wait = 20 * (attempt + 1)
                 if attempt < max_retries - 1:
                     time.sleep(wait)
 
-            except anthropic.APIStatusError as e:
+            except openai.APIStatusError as e:
                 if e.status_code >= 500:
                     last_error = e
                     if attempt < max_retries - 1:
