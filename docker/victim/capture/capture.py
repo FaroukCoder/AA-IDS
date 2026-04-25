@@ -18,12 +18,25 @@ Run:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
+import socket
+import struct
 from datetime import datetime, timezone
 
 from scapy.all import IP, TCP, sniff  # type: ignore[import]
 
 OUTPUT_PATH = "/logs/live_traffic.jsonl"
+
+
+def _iface_ip(iface: str) -> str | None:
+    """Return the IPv4 address bound to `iface`, or None on failure."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        raw = fcntl.ioctl(s.fileno(), 0x8915, struct.pack("256s", iface[:15].encode()))
+        return socket.inet_ntoa(raw[20:24])
+    except OSError:
+        return None
 
 
 def _packet_to_record(pkt) -> dict | None:
@@ -54,7 +67,16 @@ def main() -> None:
     parser.add_argument("--interface", default="eth0", help="Network interface to sniff")
     args = parser.parse_args()
 
-    print(f"[capture] Sniffing {args.interface} → {OUTPUT_PATH}", flush=True)
+    # Only capture traffic arriving AT this host — exclude our own outgoing responses
+    # (RST/SYN-ACK replies from the victim would otherwise appear as a second attacker
+    # in the sentinel, generating a spurious extra pipeline run).
+    local_ip = _iface_ip(args.interface)
+    if local_ip:
+        bpf_filter = f"tcp and dst host {local_ip}"
+        print(f"[capture] Sniffing {args.interface} (inbound only, dst={local_ip}) → {OUTPUT_PATH}", flush=True)
+    else:
+        bpf_filter = "tcp"
+        print(f"[capture] Sniffing {args.interface} (all TCP, could not detect local IP) → {OUTPUT_PATH}", flush=True)
 
     with open(OUTPUT_PATH, "a", encoding="utf-8") as out_f:
         def handle(pkt) -> None:
@@ -64,7 +86,7 @@ def main() -> None:
                 out_f.flush()
 
         try:
-            sniff(iface=args.interface, filter="tcp", prn=handle, store=False)
+            sniff(iface=args.interface, filter=bpf_filter, prn=handle, store=False)
         except KeyboardInterrupt:
             print("[capture] Stopped.", flush=True)
 
