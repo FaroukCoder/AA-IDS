@@ -2,7 +2,7 @@
 demo.py — One-command demonstration of the LLM-Orchestrated Threat Detection System.
 
 Run:
-    python demo.py
+    python -m threat_system.demo
 
 Expected output (<90s):
   1. Demo event displayed (medium severity port scan)
@@ -19,8 +19,8 @@ from __future__ import annotations
 import os
 import sys
 
-# Allow running from project root
-sys.path.insert(0, os.path.dirname(__file__))
+# Allow running as: python -m threat_system.demo  (repo root must be on path)
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from threat_system.config.settings import settings
 
