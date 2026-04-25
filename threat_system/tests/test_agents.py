@@ -188,10 +188,11 @@ def test_agent_handles_llm_output_error_gracefully():
 def test_agent_handles_llm_timeout_gracefully():
     from ..agents.dns_agent import DNSAgent
     from ..tools.dns_tool import MockDNSTool
-    import anthropic
+    import openai
+    from unittest.mock import MagicMock
 
     agent = DNSAgent(tool=MockDNSTool())
-    with patch("threat_system.framework.llm_client.call", side_effect=anthropic.APIConnectionError(request=None)):
+    with patch("threat_system.framework.llm_client.call", side_effect=openai.APIConnectionError(request=MagicMock())):
         report = agent.run(DEMO_EVENT)
 
     assert report.fallback is True

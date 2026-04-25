@@ -77,20 +77,17 @@ class Sentinel:
         for ip, records in by_ip.items():
             records_sorted = sorted(records, key=lambda r: r.get("timestamp", ""))
 
-            # Rule 1 — port_scan_rule: >10 unique ports from one IP within 10s
-            port_scan_event = self._port_scan_rule(ip, records_sorted, _next_id)
-            if port_scan_event:
-                events.append(port_scan_event)
-
-            # Rule 2 — traffic_spike_rule: >100 requests from one IP within 10s
-            spike_event = self._traffic_spike_rule(ip, records_sorted, _next_id)
-            if spike_event:
-                events.append(spike_event)
-
-            # Rule 3 — failed_conn_rule: >20 failed/SYN connections within 30s
-            failed_event = self._failed_conn_rule(ip, records_sorted, _next_id)
-            if failed_event:
-                events.append(failed_event)
+            # Evaluate rules in priority order; emit at most one event per source IP
+            # to prevent the same attack generating multiple pipeline runs.
+            for rule_fn in (
+                self._port_scan_rule,
+                self._traffic_spike_rule,
+                self._failed_conn_rule,
+            ):
+                event = rule_fn(ip, records_sorted, _next_id)
+                if event:
+                    events.append(event)
+                    break   # one event per IP per batch
 
         os.makedirs(os.path.dirname(EVENTS_LOG), exist_ok=True)
         with open(EVENTS_LOG, "w", encoding="utf-8") as f:
@@ -225,7 +222,7 @@ class Sentinel:
         # Per-IP record buffers (ordered by arrival)
         ip_records: dict[str, deque] = defaultdict(deque)
         # Cooldown: (ip, rule_name) → earliest wall-clock time to fire again
-        cooldown: dict[tuple, float] = {}
+        cooldown: dict[str, float] = {}   # ip → earliest wall-clock time any rule may fire again
         COOLDOWN_S = 60.0
         MAX_WINDOW = 30.0   # max of all rule windows
 
@@ -278,17 +275,18 @@ class Sentinel:
 
                     records_list = list(buf)
 
+                    # Per-IP cooldown: if any rule already fired for this IP, skip all rules.
+                    if cooldown.get(ip, 0.0) > now:
+                        continue
+
                     for rule_name, rule_fn in (
                         ("port_scan",     self._port_scan_rule),
                         ("traffic_spike", self._traffic_spike_rule),
                         ("failed_conn",   self._failed_conn_rule),
                     ):
-                        key = (ip, rule_name)
-                        if cooldown.get(key, 0.0) > now:
-                            continue
                         event = rule_fn(ip, records_list, _next_id)
                         if event:
-                            cooldown[key] = now + COOLDOWN_S
+                            cooldown[ip] = now + COOLDOWN_S   # block ALL rules for this IP
                             # B2: catch callback exceptions so the watch loop
                             # survives a pipeline crash and keeps processing events.
                             try:
@@ -298,6 +296,7 @@ class Sentinel:
                                     "watch(): event callback raised %s — loop continues",
                                     exc,
                                 )
+                            break   # one event per IP per packet arrival
 
             except KeyboardInterrupt:
                 pass

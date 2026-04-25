@@ -443,6 +443,6 @@ const Cabinet = (() => {
     }
   }
 
-  return { reload, showList, showDetail, isOpen, toggle, addLiveRun, hydrateDetail };
+  return { reload, showList, showDetail, isOpen, toggle, addLiveRun, hydrateDetail, loadHistory };
 
 })();

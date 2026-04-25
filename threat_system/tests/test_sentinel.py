@@ -396,3 +396,38 @@ def test_watch_callback_exception_does_not_kill_loop():
     t.join(timeout=2)
     os.unlink(tmp_path)
     os.unlink(tmp2.name)
+
+
+# ── Deduplication: at most one event per IP per batch ─────────────────────
+
+def test_process_emits_at_most_one_event_per_ip():
+    """An IP triggering both port_scan and traffic_spike must emit only one event."""
+    from datetime import datetime, timezone
+    sentinel = Sentinel()
+    base = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    # 120 records, 15 different ports, all within 9 s
+    # → satisfies both port_scan (>10 unique ports) AND traffic_spike (>100 requests)
+    records = [
+        {
+            "src_ip":    "10.0.0.1",
+            "dst_port":  (i % 15) + 1,
+            "status":    "SYN",
+            "timestamp": base.replace(second=i % 9).isoformat(),
+        }
+        for i in range(120)
+    ]
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".jsonl", delete=False, encoding="utf-8"
+    ) as f:
+        for r in records:
+            f.write(json.dumps(r) + "\n")
+        path = f.name
+    try:
+        events = sentinel.process(path)
+        ip_events = [e for e in events if e.src_ip == "10.0.0.1"]
+        assert len(ip_events) == 1, (
+            f"Expected 1 event for 10.0.0.1, got {len(ip_events)}: "
+            f"{[e.event_type for e in ip_events]}"
+        )
+    finally:
+        os.unlink(path)
