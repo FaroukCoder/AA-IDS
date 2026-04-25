@@ -1,13 +1,22 @@
-anthropic>=0.30.0
+# Core pipeline
+anthropic>=0.40.0
 python-dotenv>=1.0.0
-rich>=13.0.0
-pytest>=8.0.0
 ipwhois>=1.3.0
-requests>=2.31.0
-websockets>=12.0
-# Live capture and SSH brute-force (used inside Docker containers)
-# scapy requires admin/root privileges to capture packets
-# On Windows: run terminal as Administrator
-# On Linux/Mac: run with sudo or use setcap
+requests>=2.32.0
+
+# Terminal display
+rich>=13.0.0
+
+# Web server / dashboard
+websockets>=13.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+
+# Packet capture — Docker victim container only
+# Requires admin/root: on Windows run as Administrator; on Linux use sudo or setcap
 scapy>=2.5.0
+
+# SSH simulation — Docker attacker container only
 paramiko>=3.0.0
