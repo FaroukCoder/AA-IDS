@@ -26,8 +26,14 @@ htmlcov/
 .vscode/
 .idea/
 *.code-workspace
+
+# ── Claude Code local config (global agents/skills stay in ~/.claude) ───────
+.claude/agents/
+.claude/prompts/
+.claude/skills/
 .claude/settings.local.json
 .claude/launch.json
+.claude/plans/
 
 # ── Claude Code Plugin Artifacts ────────────────────────────────
 .agents/
