@@ -18,6 +18,8 @@ class _Settings:
         self.llm_base_url    = os.environ.get("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1")
         self.llm_model       = os.environ.get("LLM_MODEL", "meta/llama-3.3-70b-instruct")
         self.abuseipdb_key   = os.environ.get("ABUSEIPDB_KEY", "")
+        self.llm_thinking    = os.environ.get("LLM_THINKING", "false").lower() == "true"
+        self.llm_timeout     = float(os.environ.get("LLM_TIMEOUT", "60"))
         self.min_confidence_to_act: float = 0.60
 
     def validate(self) -> None:

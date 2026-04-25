@@ -136,3 +136,18 @@ def test_whois_agent_empty_llm_response_is_fallback():
         report = agent.run(DEMO_EVENT)
     assert report.fallback is True
     assert report.confidence == 0.0
+
+
+# ── _clean_content: thinking model artifact stripping ─────────────────────
+
+def test_clean_content_strips_think_tags():
+    """<think>…</think> blocks from reasoning models are removed before JSON parsing."""
+    from ..framework.llm_client import _clean_content
+    raw = "<think>\nLet me reason about this...\n</think>\n{\"risk_level\": \"high\"}"
+    assert _clean_content(raw) == '{"risk_level": "high"}'
+
+
+def test_clean_content_leaves_plain_text_unchanged():
+    """_clean_content must not alter responses that contain no think tags."""
+    from ..framework.llm_client import _clean_content
+    assert _clean_content('{"ok": true}') == '{"ok": true}'
