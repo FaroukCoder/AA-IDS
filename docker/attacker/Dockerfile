@@ -1,15 +1,15 @@
-FROM kalilinux/kali-rolling
+FROM python:3.11-slim-bookworm
 
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-scapy \
-    python3-paramiko \
-    python3-requests \
     nmap \
+    libpcap-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --break-system-packages rich
+RUN pip install --no-cache-dir \
+    scapy \
+    paramiko \
+    requests \
+    rich
 
 COPY attacks/ /attacks/
 
