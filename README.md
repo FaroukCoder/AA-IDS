@@ -106,25 +106,30 @@ Shared volume: `./threat_system/logs/` ↔ `/logs/` in both containers.
 ```
 threat_system/
 ├── agents/          LLM specialist agents (WHOIS, DNS, PortIntel, Reputation)
-├── config/          Settings, policy files, .env
-├── framework/       Sentinel, ThreatPipeline, BaseAgent, models
-├── logs/            Runtime output (gitignored)
+├── config/          Settings, policy files, .env  (.env gitignored)
+├── framework/       Sentinel, ThreatPipeline, BaseAgent, display
+├── logs/            Runtime output — gitignored (.gitkeep keeps folder)
 ├── prompts/         .txt prompt templates
 ├── simulator/       Synthetic scenario generator (no Docker needed)
 ├── skills/          .md domain guidelines loaded at runtime
-├── tests/           pytest test suite
+├── tests/           pytest test suite (94 tests)
 ├── tools/           Raw data fetchers (WHOIS, DNS, AbuseIPDB)
 ├── visualizer/      Browser dashboard (WebSocket + static HTML/JS)
+├── demo.py          One-command demo — run as: py -m threat_system.demo
 ├── live.py          Live mode entry point
 ├── main.py          Scenario mode entry point
 └── server.py        Dashboard-only server
 
 docker/
 ├── docker-compose.yml
-├── run_attack.py    Convenience launcher
-├── attacker/        Kali container + attack scripts
-└── victim/          Ubuntu container + Scapy capture
+├── run_attack.py         Convenience attack launcher
+├── spoof_attack.py       Interactive spoofed-IP attack runner
+├── attacker/             Kali container + attack scripts
+└── victim/               Ubuntu container + Scapy capture
 ```
+
+> **Note:** `.venv/`, `logs/*.json`, `logs/*.jsonl`, and `coverage.txt` are
+> gitignored. Clone the repo and run `pip install -r requirements.txt` to get started.
 
 ---
 

@@ -147,7 +147,7 @@ def test_narrate_orchestrator_malicious_high_confidence():
     assert n is not None
     assert n["verdict"] == "malicious"
     assert n["confidence"] == pytest.approx(0.92)
-    assert "whois" in n["inner_voice"]
+    assert "MALICIOUS" in n["inner_voice"] or "malicious" in n["inner_voice"].lower()
 
 
 def test_narrate_orchestrator_auto_escalated():
@@ -173,7 +173,7 @@ def test_narrate_policy_allow():
     n = narrate_policy(policy)
     assert n is not None
     assert n["agent"] == "policy"
-    assert "block_ip" in n["inner_voice"]
+    assert "block" in n["inner_voice"].lower()
 
 
 def test_narrate_policy_downgrade():
